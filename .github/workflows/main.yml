@@ -1,32 +1,26 @@
-name: Docker build and push
-on: [push]
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ develop ]
+  pull_request:
+    branches: [ develop ]
+
 jobs:
+
   build:
+
     runs-on: ubuntu-latest
+
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: docker login
       env:
-        DOCKER_USER: ${{ secrets.DOCKER_USER }}
-        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+        DOCKER_USER: ${{secrets.DOCKERHUB_USERNAME}}
+        DOCKER_PASSWORD: ${{secrets.DOCKERHUB_TOKEN}}
       run: |
-        docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
-    - name: Set up Python 3.8.12
-      uses: actions/setup-python@v1
-      with:
-        python-version: 3.8.12
-    - name: Install dependencies
-      run: |
-        make install
-    - name: Lint
-      run: |
-        make lint
-    - name: Test
-      run: |
-        make test
-    - name: docker build
-      run: |
-        docker build -t smitpatel27/our_image:0.0.1 .
-    - name: docker push
-      run: |
-        docker push smitpatel27/our_image:0.0.1
+        docker login -u $DOCKER_USER -p $DOCKER_PASSWORD 
+    - name: Build the Docker image
+      run: docker build . --file Dockerfile --tag smitpatel27/latest:0.0.0.1
+    - name: Docker Push
+      run: docker push smitpatel27/latest:0.0.0.1
